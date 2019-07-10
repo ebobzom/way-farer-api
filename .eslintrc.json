@@ -23,7 +23,8 @@
             "rules": {
                 "no-unused-expression": "off",
                 "no-undef":"off",
-                "linebreak-style":"off"
+                "linebreak-style":"off",
+                "no-unused-expressions": "off"
             }
         }
     ]
