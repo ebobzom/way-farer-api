@@ -6,7 +6,8 @@ const app = require('../server');
 chai.use(chaiHttp);
 
 describe('POST /api/v1/auth/signup', () => {
-  it('should have all required property', (done) => {
+  it('should have all required property', function setTime(done) {
+    this.timeout(10000);
     chai.request(app)
       .post('/api/v1/auth/signup')
       .send({
