@@ -71,6 +71,49 @@ const createUser = (req, res) => {
 };
 
 
+// SIGNIN USER
+
+const signinUser = (req, res) => {
+  const {
+    email, password,
+  } = req.body;
+  const text = `SELECT user_id, first_name, last_name, email, is_admin, password FROM person WHERE email='${email}'`;
+  pool.query(text)
+    .then((response) => {
+      bcryptjs.compare(password, response.rows[0].password)
+        .then((value) => {
+          if (value) {
+            const token = jwt.sign(password, process.env.PASSWORD);
+            res.cookie('key', token);
+            const result = {
+              status: 'success',
+              data: {
+                user_id: response.rows[0].user_id,
+                first_name: response.rows[0].first_name,
+                last_name: response.rows[0].last_name,
+                email: response.rows[0].email,
+                is_admin: response.rows[0].is_admin,
+                token,
+              },
+            };
+
+            res.status(200).json(result);
+          } else {
+            res.status(401).json({
+              status: 'error',
+              error: 'wrong email or password',
+            });
+          }
+        });
+    })
+    .catch(() => {
+      res.status(401).json({
+        status: 'error',
+        error: 'user does not exist',
+      });
+    });
+};
+
 module.exports = {
-  createUser,
+  createUser, signinUser,
 };
