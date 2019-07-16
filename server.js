@@ -13,11 +13,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-app.post('/api/v1/auth/signup', createUser);
-app.post('/api/v1/auth/signin', signinUser);
-app.post('/api/v1/auth/bus', addBus);
-app.post('/api/v1/auth/trip', createTrip);
-app.get('/api/v1/auth/trip', getTrips);
+app.post('/auth/signup', createUser);
+app.post('/auth/signin', signinUser);
+app.post('/auth/bus', addBus);
+app.post('/auth/trip', createTrip);
+app.get('/auth/trip', getTrips);
 
 app.listen(port, () => `Server runnig on port ${port}`);
 module.exports = app;
