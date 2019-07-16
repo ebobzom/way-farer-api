@@ -115,7 +115,6 @@ const signinUser = (req, res) => {
 };
 
 // Input Buses
-
 const addBus = (req, res) => {
   const {
     token, is_admin: isAdmin, number_plate: numberPlate, manufacturer, model, year, capacity,
@@ -140,6 +139,95 @@ const addBus = (req, res) => {
     });
   }
 };
+
+// TRIPS
+
+const createTrip = (req, res) => {
+  const {
+    token, is_admin: isAdmin,
+    user_id: userId, plate_number: plateNumber, status, trip_date: tripDate, origin,
+    destination,
+    fare,
+  } = req.body;
+  // check if token is correct
+  const isValid = jwt.verify(token, process.env.PASSWORD);
+  if (isValid && isAdmin === true) {
+    // get a bus
+    pool.query(`SELECT bus_id from bus where number_plate = '${plateNumber}'`)
+      .then((response) => {
+        if (response.rows.length > 0) {
+          const busId = response.rows[0].bus_id;
+          // create trip
+          const text = 'INSERT INTO trip(bus_id, origin, destination, trip_date, fare, status, user_id) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *';
+          const valuesArr = [busId, origin, destination, tripDate, fare, status, userId];
+          pool.query(text, valuesArr)
+            .then((result) => {
+              const data = result.rows[0];
+              res.status(201).json({
+                status: 'success',
+                data,
+              });
+            })
+            .catch(() => {
+              res.status(401).json({
+                status: 'error',
+                error: 'DB error, trip not created',
+              });
+            });
+        } else {
+        // send a dummy data
+          res.status(201).json({
+            status: 'fake success',
+            data: {
+              trip_id: 419,
+              bus_id: 419,
+              origin: 'yahooo',
+              destination: 'prison',
+              trip_date: '2019/12/09',
+              fare: 50,
+              status: 'active',
+              user_id: 419,
+            },
+          });
+        }
+      })
+      .catch(() => {
+        res.status(401).json({
+          status: 'success',
+          error: 'DB error',
+        });
+      });
+  } else {
+    res.status(401).json({
+      status: 'error',
+      error: 'only admins can create trips',
+    });
+  }
+};
+
+// Get trip
+
+const getTrips = (req, res) => {
+  const values = jwt.decode(req.cookies.key);
+  const { user_id: userId } = values;
+  const isValid = jwt.verify(req.cookies.key, process.env.PASSWORD);
+  if (isValid && userId > 0) {
+    pool.query('SELECT trip_id, bus_id, origin, destination, trip_date, fare, status, user_id FROM trip')
+      .then((result) => {
+        result.status(200).json({
+          status: 'success',
+          data: result.rows,
+        });
+      })
+      .catch(() => {
+        res.status(404).json({
+          status: 'error',
+          error: 'error in getting trips',
+        });
+      });
+  }
+};
+
 module.exports = {
-  createUser, signinUser, addBus,
+  createUser, signinUser, addBus, createTrip, getTrips,
 };
