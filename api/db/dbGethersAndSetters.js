@@ -6,11 +6,12 @@ const { config } = require('dotenv');
 config();
 
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.HOST,
-  database: process.env.DB,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
+  connectionString = 'postgres://bqjrahuhoquxfh:147a9e97ab16fbd118b45157abe687675f90601938dd366f6fcd5aaa4e2a6556@ec2-174-129-227-51.compute-1.amazonaws.com:5432/dbuva3dq3grjk5'
+  // user: process.env.DB_USER,
+  // host: process.env.HOST,
+  // database: process.env.DB,
+  // password: process.env.DB_PASSWORD,
+  // port: process.env.DB_PORT,
 });
 /**
  *
