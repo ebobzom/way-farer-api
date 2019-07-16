@@ -114,6 +114,32 @@ const signinUser = (req, res) => {
     });
 };
 
+// Input Buses
+
+const addBus = (req, res) => {
+  const {
+    token, is_admin: isAdmin, number_plate: numberPlate, manufacturer, model, year, capacity,
+  } = req.body;
+  if (isAdmin === true && token.length > 10) {
+    const text = 'INSERT INTO bus (number_plate, manufacturer,model,year,capacity) VALUES ($1, $2, $3, $4, $5) RETURNING bus_id, number_plate, manufacturer, model, year, capacity';
+    const values = [numberPlate, manufacturer, model, year, capacity];
+    pool.query(text, values)
+      .then((response) => {
+        res.status(201).json(response.rows[0]);
+      })
+      .catch(() => {
+        res.status(401).json({
+          status: 'error',
+          error: 'error, bus not saved to database',
+        });
+      });
+  } else {
+    res.status(401).json({
+      status: 'error',
+      error: 'only admin that have logged in can add bus',
+    });
+  }
+};
 module.exports = {
-  createUser, signinUser,
+  createUser, signinUser, addBus,
 };
